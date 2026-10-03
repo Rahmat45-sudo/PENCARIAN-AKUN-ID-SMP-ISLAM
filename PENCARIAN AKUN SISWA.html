@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pencarian Akun Belajar.id</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f7fb;color:#172033}
+.container{max-width:1050px;margin:auto;padding:24px}
+.card{background:#fff;border-radius:18px;box-shadow:0 8px 30px rgba(20,40,80,.08);padding:24px;margin-bottom:20px}
+h1{margin:0 0 8px;text-align:center;font-size:30px}
+.sub{text-align:center;color:#667085;margin-bottom:22px}
+.search{display:flex;gap:10px}
+input{flex:1;padding:14px 16px;border:1px solid #ccd5e1;border-radius:12px;font-size:16px;outline:none}
+input:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+button{border:0;border-radius:12px;padding:14px 20px;font-weight:700;cursor:pointer}
+#btnCari{background:#2563eb;color:white}
+#btnReset{background:#e9eef5;color:#344054}
+.info{display:flex;justify-content:space-between;gap:10px;margin-top:14px;color:#667085;font-size:14px;flex-wrap:wrap}
+#status{margin-top:18px;padding:12px;border-radius:10px;background:#eef5ff;color:#175cd3}
+.results{margin-top:20px;display:grid;gap:12px}
+.result{border:1px solid #e2e8f0;border-radius:14px;padding:17px;background:#fff}
+.name{font-weight:800;font-size:18px;margin-bottom:7px}
+.email{font-family:Consolas,monospace;color:#175cd3;word-break:break-all;background:#f5f8ff;padding:9px;border-radius:8px}
+.num{display:inline-block;margin-top:9px;font-size:12px;color:#667085}
+.empty{text-align:center;padding:28px;color:#667085}
+.footer{text-align:center;color:#98a2b3;font-size:12px;padding:10px}
+@media(max-width:650px){.search{flex-direction:column}.search button{width:100%}h1{font-size:24px}.container{padding:14px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h1>🔎 Pencarian Akun Belajar.id</h1>
+    <div class="sub">Cari akun berdasarkan nama. Ketik sebagian atau seluruh nama.</div>
+    <div class="search">
+      <input id="nama" type="search" autocomplete="off" placeholder="Contoh: RAHMAT, NURUL, AHMAD..." aria-label="Nama">
+      <button id="btnCari" type="button">Cari</button>
+      <button id="btnReset" type="button">Reset</button>
+    </div>
+    <div class="info">
+      <span id="jumlahData">Database siap</span>
+      <span id="jumlahHasil"></span>
+    </div>
+    <div id="status" hidden></div>
+    <div id="hasil" class="results"></div>
+  </div>
+  <div class="footer">Data ditampilkan sesuai database yang dimasukkan ke dalam file ini.</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+const DATA = [
+["subardan.90@admin.smp.belajar.id","SUBARDAN"],
+["nurulaini12@guru.smp.belajar.id","NURUL AINI"],
+["tika.puspa71@guru.smp.belajar.id","TIKA PUSPA SARI"],
+["irwanhadi24@guru.smp.belajar.id","IRWAN HADI"],
+["nurulhidayati73@guru.smp.belajar.id","NURUL HIDAYATI"],
+["bq.salma37@guru.smp.belajar.id","BQ. SALMA MALIDA FADHILAH"],
+["nurul0914@guru.smp.belajar.id","NURUL HAPITATUL KHAER"],
+["gia.hamdi31@guru.smp.belajar.id","GIA HAMDI"],
+["rahmattsani25@guru.smp.belajar.id","RAHMAT GUFRON TSANI"],
+["hamdiati12@guru.smp.belajar.id","HAMDIATI"],
+["lalu.irjanawadi40@guru.smp.belajar.id","LALU IRJANAWADIM.PD."],
+["m.nurul6750@guru.smp.belajar.id","M. NURUL HIDAYAT"],
+["nurhidayati388@guru.smp.belajar.id","NURHIDAYATI"],
+["zohdi.khaer27@guru.smp.belajar.id","ZOHDIHAIR"],
+["septia.ariani49@smp.belajar.id","SEPTIA ARIANI"],
+["meidina1528@smp.belajar.id","MEIDINA HARTINI LATIFA"],
+["m.paozan133@smp.belajar.id","M. PAOZAN RAMDANI"],
+["ayu.avrilia36@smp.belajar.id","AYU AVRILIA"],
+["ricko.irawan68@smp.belajar.id","RICKO IRAWAN"],
+["hadrosiramadani77@smp.belajar.id","HADROSI RAMADANI"],
+["fatin.selvina21@smp.belajar.id","FATIN SELVINA UTAMI"],
+["azra.karadia44@smp.belajar.id","AZRA KARADIA"],
+["ziadatun431@smp.belajar.id","ZIADATUN MAULIDA"],
+["qinaya.aziza45@smp.belajar.id","QINAYA AZIZA ALBANTANI"],
+["muhammad.azmi56008@smp.belajar.id","MUHAMMAD AZMI FAZIL"],
+["annisa19161@smp.belajar.id","ANNISA AMALIA THOHA"],
+["yogi.alfatih14@smp.belajar.id","Yogi Alfatih"],
+["guntur.pratama696@smp.belajar.id","GUNTUR PRATAMA"],
+["venny.azzahra108@smp.belajar.id","VENNY AZZAHRA"],
+["muhammad.azmi61388@smp.belajar.id","MUHAMMAD AZMI FAZIL"],
+["rodiatul032@smp.belajar.id","RODIATUL ASROR"],
+["apriliana.5503@smp.belajar.id","APRILIANA"],
+["citra.lestari38787@smp.belajar.id","Citra Lestari"],
+["indah.mey146@smp.belajar.id","INDAH MEY SURIANI"],
+["septiani.ariani39@smp.belajar.id","SEPTIA ARIANI"],
+["ahmad.ikbal2599@smp.belajar.id","AHMAD IKBAL RONI"],
+["cahya7338@smp.belajar.id","CAHYA MAULIDA"],
+["mayza.aprilia9@smp.belajar.id","MAYZA APRILIA ALISTA"],
+["novita.sari94148@smp.belajar.id","Novita Sari"],
+["tina.septiana155@smp.belajar.id","TINA SEPTIANA"],
+["laela178@smp.belajar.id","LAELA SAPITRI"],
+["siti.lailatul15967@smp.belajar.id","SITI LAILATUL AZMI"],
+["kuswandi.1021@smp.belajar.id","KUSWANDI"],
+["m.farid23374@smp.belajar.id","M. Farid Atalla"],
+["heriawan.subqi46@smp.belajar.id","HERIAWAN SUBQI SAPUTRA"],
+["m.riyadi311@smp.belajar.id","M. RIYADI ZOM'ANI"],
+["apriliana.6103@smp.belajar.id","APRILIANA"],
+["muhamad.najmussakib50@smp.belajar.id","MUHAMAD NAJMUSSAKIB"],
+["afika.latifani40@smp.belajar.id","AFIKA LATIFANI SYAFITRI"],
+["indah.mey162@smp.belajar.id","INDAH MEY SURIANI"],
+["nadia.ilyana3@smp.belajar.id","NADIA ILYANA"],
+["riska.putri19875@smp.belajar.id","Riska Putri Ramadani"],
+["nazwa.nasyifa129@smp.belajar.id","NAZWA NASYIFA PUTRI"],
+["siti.rumaiza50@smp.belajar.id","SITI RUMAIZA SALMA"],
+["muhammad.naufal400219@smp.belajar.id","MUHAMMAD NAUFAL RIZKI"],
+["zinuraini.maysila33@smp.belajar.id","ZINURAINI MAYSILA"],
+["ulpatulilma.1@smp.belajar.id","ULPATULILMA"],
+["muhammad.surya35766@smp.belajar.id","MUHAMMAD SURYA RAMDHANI"],
+["kuswandi.1053@smp.belajar.id","KUSWANDI"],
+["desta.hadian22@smp.belajar.id","DESTA HADIAN SAPUTRA"],
+["ahmad.ikbal2841@smp.belajar.id","AHMAD IKBAL ARONI"],
+["m.padil4818@smp.belajar.id","M. Padil AL Ihsan"],
+["siti.laelatul3220@smp.belajar.id","SITI LAELATUL AZMI"],
+["arifandi.565@smp.belajar.id","ARIFANDI"],
+["pebrian.ardiansyah1@smp.belajar.id","Pebrian Ardiansyah"],
+["abdul.kholil1130@smp.belajar.id","Abdul kholil"],
+["siti.padila2353@smp.belajar.id","Siti Padila Azzahra"],
+["alfiansaputra842@smp.belajar.id","ALFIAN SAPUTRA"],
+["zafina.abdiatin44@smp.belajar.id","ZAFINA ABDIATIN SOLEHA"],
+["qinaya.aziza79@smp.belajar.id","QINAYA AZIZA ALBANTANI"],
+["ricko.irawan89@smp.belajar.id","RICKO IRAWAN"],
+["resya248@smp.belajar.id","RESYA AYU NINDA"],
+["muliyani.1323@smp.belajar.id","MULIYANI"],
+["zalfa.kansa50@smp.belajar.id","ZALFA KANSA HAIRUNNISA"],
+["ahmad.hamdan1893@smp.belajar.id","AHMAD HAMDAN MUNZIR"],
+["afika.latifani32@smp.belajar.id","AFIKA LATIFANI SYAFITRI"],
+["arifandi.477@smp.belajar.id","ARIFANDI"],
+["yazid.irsyadi14@smp.belajar.id","YAZID IRSYADI"],
+["muhasror64@smp.belajar.id","MUH SYIRUL ASROR"],
+["siti30886@smp.belajar.id","SITI REZA"],
+["wirajaya.94@smp.belajar.id","WIRAJAYA"],
+["niza471@smp.belajar.id","LIZA"],
+["siti.ziadatuk38@smp.belajar.id","SITI ZIADATUL KHAER"],
+["venny.azzahra143@smp.belajar.id","VENNY AZZAHRA"],
+["ahmadmurobbi60@smp.belajar.id","AHMAD MUROBBI"],
+["khaerul.abror55@smp.belajar.id","KHAERUL ABROR"],
+["m.rizki85048@smp.belajar.id","M.RIZKI ALGHIPARI"],
+["gilang8988@smp.belajar.id","GILANG RAMADAN"],
+["ery093@smp.belajar.id","ERY KUSMAYADI"],
+["dina.nika36@smp.belajar.id","DINA NIKA APRILIA"],
+["malhuzaevi13@smp.belajar.id","M RIZALDI ALHUZAEVI"],
+["fatihin081@smp.belajar.id","FATIHIN AHMAD"],
+["tina.septiana121@smp.belajar.id","TINA SEPTIANA"],
+["husnul1619@smp.belajar.id","HUSNUL WARDIAH"],
+["mohnazil77@smp.belajar.id","MOH HERU NAZIL"],
+["maysa.putri874@smp.belajar.id","MAYSA PUTRI"],
+["handayani30@smp.belajar.id","HANDAYANI"],
+["hilma.cahyani79@smp.belajar.id","HILMA CAHYANI"],
+["haerurrozikin.95@smp.belajar.id","HAERUR ROZIKIN"],
+["muhammad.rangga1442@smp.belajar.id","MUHAMMAD RANGGA"],
+["ratnaaulia17@smp.belajar.id","RATNA AULIA"],
+["askinarosada53@smp.belajar.id","ASKINA ROSADA"],
+["febriayanti42@smp.belajar.id","PEBRIYANTI"],
+["mayra.78@smp.belajar.id","MAYRA"],
+["mwarisin89@smp.belajar.id","MUH KHAIRUL WARISIN"],
+["unwanziyadi59@smp.belajar.id","UNWAN ZIYADI"],
+["naufal.alib32@smp.belajar.id","NAUFAL ALIB ASADEL"],
+["muhamad.hafizi280@smp.belajar.id","MUHAMAD HAFIZI AKBAR"],
+["ihsan.aulawi23@smp.belajar.id","IHSAN AULAWI PUTRA"],
+["muliardi.19@smp.belajar.id","MULIARDI"],
+["abdurrazak.232@smp.belajar.id","ABDURRAZAK"],
+["haril943@smp.belajar.id","HARIL SETIA PRATAMA"],
+["egi.hamzani33@smp.belajar.id","EGI HAMZANI"],
+["muh.najmul65@smp.belajar.id","MUH. NAJMUL PAHRI"],
+["endri.alanwari4@smp.belajar.id","ENDRI ALANWARI SAPUTRA"],
+["silna.paradisa125@smp.belajar.id","SILNA PARADISA"],
+["arya.saputra24672@smp.belajar.id","ARYA SAPUTRA"],
+["mia.mawantini39@smp.belajar.id","MIA MAWANTINI"],
+["nuzila.okta10@smp.belajar.id","Nuzila Okta Resyia"],
+["muhammad.alpiansyah958@smp.belajar.id","MUHAMMAD ALPIANSYAH"],
+["sirul261@smp.belajar.id","SIRUL HAYATI"],
+["isfha.nurhasanah43@smp.belajar.id","ISFHA NURHASANAH"],
+["mila.susanti642@smp.belajar.id","MILA SUSANTI"],
+["fanesya.salsabila37@smp.belajar.id","FANESYA SALSABILA"],
+["m.padi11@smp.belajar.id","M. PADI ZAENUL HASANI"],
+["jwita.sintiani45@smp.belajar.id","JUWITA SINTIANI"],
+["muhammad.irsan4756@smp.belajar.id","Muhammad Irsan"],
+["izatul.aulia115@smp.belajar.id","IZATUL AULIA"],
+["nisa3733@smp.belajar.id","NISA SAFIKA"],
+["akbar.ngabalin13@smp.belajar.id","AKBAR NGABALIN"],
+["zuanda.almayda49@smp.belajar.id","ZUANDA ALMAYDA"],
+["maula337@smp.belajar.id","MAULA ASROINI"],
+["dimas.alfarizi1467@smp.belajar.id","DIMAS ALFARIZI"],
+["reza.ikhtiar30@smp.belajar.id","Reza Ikhtiar"],
+["nurhizatul.nadia40@smp.belajar.id","NURHIZATUL NADIA"],
+["izzatul.hasanah177@smp.belajar.id","IZZATUL HASANAH"],
+["nazima871@smp.belajar.id","NAZIMA WAHIDA"],
+["sazkia44@smp.belajar.id","SAZKIA"],
+["allifa.ma16@smp.belajar.id","ALLIFA MA'RIFATUSSOFIA"],
+["ahmad.hairul556@smp.belajar.id","Ahmad Hairul Hasby"],
+["marya.ulfa874@smp.belajar.id","MARYA ULFA"]
+];
+
+const namaInput=document.getElementById("nama");
+const btnCari=document.getElementById("btnCari");
+const btnReset=document.getElementById("btnReset");
+const hasil=document.getElementById("hasil");
+const status=document.getElementById("status");
+const jumlahData=document.getElementById("jumlahData");
+const jumlahHasil=document.getElementById("jumlahHasil");
+
+function normalisasi(teks){
+  return String(teks||"")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toUpperCase()
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function escapeHTML(teks){
+  return String(teks).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c];
+  });
+}
+
+function cari(){
+  const q=normalisasi(namaInput.value);
+  hasil.innerHTML="";
+  jumlahHasil.textContent="";
+  status.hidden=false;
+
+  if(!q){
+    status.textContent="Silakan ketik nama yang ingin dicari.";
+    return;
+  }
+
+  const ditemukan=DATA.filter(function(item){
+    return normalisasi(item[1]).includes(q);
+  });
+
+  jumlahHasil.textContent=ditemukan.length+" hasil";
+
+  if(!ditemukan.length){
+    status.textContent='Nama "'+namaInput.value.trim()+'" tidak ditemukan dalam database.';
+    hasil.innerHTML='<div class="empty">❌ Data tidak ditemukan.<br>Coba gunakan sebagian nama, misalnya <b>AHMAD</b>, <b>NURUL</b>, atau <b>MUHAMMAD</b>.</div>';
+    return;
+  }
+
+  status.textContent='Ditemukan '+ditemukan.length+' akun yang cocok.';
+  ditemukan.forEach(function(item,index){
+    const div=document.createElement("div");
+    div.className="result";
+    div.innerHTML='<div class="name">'+escapeHTML(item[1])+'</div>'+
+      '<div class="email">'+escapeHTML(item[0])+'</div>'+
+      '<span class="num">Hasil ke-'+(index+1)+'</span>';
+    hasil.appendChild(div);
+  });
+}
+
+function reset(){
+  namaInput.value="";
+  hasil.innerHTML="";
+  jumlahHasil.textContent="";
+  status.hidden=true;
+  namaInput.focus();
+}
+
+jumlahData.textContent="Database: "+DATA.length+" akun";
+btnCari.addEventListener("click",cari);
+btnReset.addEventListener("click",reset);
+namaInput.addEventListener("keydown",function(e){
+  if(e.key==="Enter"){e.preventDefault();cari();}
+  if(e.key==="Escape"){reset();}
+});
+})();
+</script>
+</body>
+</html>
